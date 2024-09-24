@@ -39,7 +39,7 @@ const App: React.FC = () => {
       }
   
       const historyData = await historyResponse.json();
-      await fetch('/api/weather/history', {
+      await fetch('${apiUrl}/api/weather/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ city, country }),

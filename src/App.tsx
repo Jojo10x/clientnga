@@ -32,14 +32,14 @@ const App: React.FC = () => {
       const forecastData = await forecastResponse.json(); 
       setForecast(forecastData.data);
   
-      const historyResponse = await fetch('${apiUrl}/api/weather/history');
+      const historyResponse = await fetch(`${apiUrl}/api/weather/history`);
       if (!historyResponse.ok) {
         const errorText = await historyResponse.text();
         throw new Error(`Error fetching history: ${historyResponse.statusText} - ${errorText}`);
       }
   
       const historyData = await historyResponse.json();
-      await fetch('${apiUrl}/api/weather/history', {
+      await fetch(`${apiUrl}/api/weather/history`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ city, country }),

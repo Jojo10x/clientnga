@@ -8,12 +8,29 @@ interface WeatherSearchProps {
 const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(city, country);
-  };
+    setError(''); 
 
+    if (!city.trim()) {
+      setError('City is required.');
+      return;
+    }
+
+    if (!country.trim() || country.length !== 2) {
+      setError('Please provide a valid 2-letter country code.');
+      return;
+    }
+
+    try {
+      await onSearch(city, country);
+    } catch (error) {
+      console.error('Failed to fetch weather data:', error);
+      setError('Failed to fetch weather data. Please try again.');
+    }
+  };
   return (
     <form onSubmit={handleSubmit} className={styles.searchForm}>
       <input
@@ -30,6 +47,7 @@ const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
         placeholder="Enter country code"
         required
       />
+      {error && <p className={styles.error}>{error}</p>}
       <button type="submit">Search</button>
     </form>
   );

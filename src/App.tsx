@@ -12,8 +12,9 @@ const App: React.FC = () => {
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
 
   const handleSearch = async (city: string, country: string) => {
+    const apiUrl ='https://servernga.onrender.com'
     try {
-      const currentResponse = await fetch(`/api/weather/current?city=${city}&country=${country}`);
+      const currentResponse = await fetch(`${apiUrl}/api/weather/current?city=${city}&country=${country}`);
       if (!currentResponse.ok) {
         const errorText = await currentResponse.text();
         throw new Error(`Error fetching current weather: ${errorText}`);
@@ -22,7 +23,7 @@ const App: React.FC = () => {
       const currentData = await currentResponse.json(); 
       setCurrentWeather(currentData.data[0]);
   
-      const forecastResponse = await fetch(`/api/weather/forecast?city=${city}&country=${country}`);
+      const forecastResponse = await fetch(`${apiUrl}/api/weather/forecast?city=${city}&country=${country}`);
       if (!forecastResponse.ok) {
         const errorText = await forecastResponse.text();
         throw new Error(`Error fetching forecast: ${forecastResponse.statusText} - ${errorText}`);
@@ -31,7 +32,7 @@ const App: React.FC = () => {
       const forecastData = await forecastResponse.json(); 
       setForecast(forecastData.data);
   
-      const historyResponse = await fetch('/api/weather/history');
+      const historyResponse = await fetch('${apiUrl}/api/weather/history');
       if (!historyResponse.ok) {
         const errorText = await historyResponse.text();
         throw new Error(`Error fetching history: ${historyResponse.statusText} - ${errorText}`);

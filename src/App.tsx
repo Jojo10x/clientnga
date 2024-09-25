@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import WeatherSearch from './components/WeatherSearch';
 import CurrentWeather from './components/CurrentWeather';
 import Forecast from './components/Forecast';
@@ -11,44 +11,67 @@ const App: React.FC = () => {
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
 
-  const handleSearch = async (city: string, country: string) => {
-    const apiUrl ='https://servernga.onrender.com'
+  const fetchHistory = async () => {
+    const apiUrl = "https://servernga.onrender.com";
     try {
-      const currentResponse = await fetch(`${apiUrl}/api/weather/current?city=${city}&country=${country}`);
+      const historyResponse = await fetch(`${apiUrl}/api/weather/history`);
+      if (!historyResponse.ok) {
+        const errorText = await historyResponse.text();
+        throw new Error(
+          `Error fetching history: ${historyResponse.statusText} - ${errorText}`
+        );
+      }
+      const historyData = await historyResponse.json();
+      setSearchHistory(historyData);
+    } catch (error) {
+      console.error("Error fetching search history:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const handleSearch = async (city: string, country: string) => {
+    const apiUrl = "https://servernga.onrender.com";
+    try {
+      const currentResponse = await fetch(
+        `${apiUrl}/api/weather/current?city=${city}&country=${country}`
+      );
       if (!currentResponse.ok) {
         const errorText = await currentResponse.text();
         throw new Error(`Error fetching current weather: ${errorText}`);
       }
-  
-      const currentData = await currentResponse.json(); 
+
+      const currentData = await currentResponse.json();
       setCurrentWeather(currentData.data[0]);
-  
-      const forecastResponse = await fetch(`${apiUrl}/api/weather/forecast?city=${city}&country=${country}`);
+
+      const forecastResponse = await fetch(
+        `${apiUrl}/api/weather/forecast?city=${city}&country=${country}`
+      );
       if (!forecastResponse.ok) {
         const errorText = await forecastResponse.text();
-        throw new Error(`Error fetching forecast: ${forecastResponse.statusText} - ${errorText}`);
+        throw new Error(
+          `Error fetching forecast: ${forecastResponse.statusText} - ${errorText}`
+        );
       }
-  
-      const forecastData = await forecastResponse.json(); 
+
+      const forecastData = await forecastResponse.json();
       setForecast(forecastData.data);
-  
-      const historyResponse = await fetch(`${apiUrl}/api/weather/history`);
-      if (!historyResponse.ok) {
-        const errorText = await historyResponse.text();
-        throw new Error(`Error fetching history: ${historyResponse.statusText} - ${errorText}`);
-      }
-  
-      const historyData = await historyResponse.json();
+
       await fetch(`${apiUrl}/api/weather/history`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ city, country }),
       });
-      setSearchHistory(historyData);
+
+      fetchHistory();
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error("Error fetching weather data:", error);
     }
   };
+
+
   
   return (
     <div className="app">
